@@ -1,0 +1,34 @@
+version: '3.8'
+
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1450
+
+services:
+  auth-service:
+    build:
+      context: ..
+      dockerfile: build/auth-service.dockerfile
+      args:
+        - PROJECT_ROOT=..
+    restart: always
+    env_file:
+      - ../configs/example.env
+    ports:
+      - "8080:82"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: medods
+    volumes:
+      - ./db-data/postgres/:/var/lib/postgresql/data/

@@ -1,0 +1,157 @@
+definitions:
+  calltypes.ErrorResponse:
+    properties:
+      error:
+        example: true
+        type: boolean
+      message:
+        example: Error description
+        type: string
+    type: object
+  calltypes.JSONResponse:
+    properties:
+      data: {}
+      error:
+        type: boolean
+      message:
+        type: string
+    type: object
+  calltypes.RegisterRequest:
+    properties:
+      active:
+        example: 1
+        type: integer
+      email:
+        example: user@example.com
+        type: string
+      firstName:
+        example: John
+        type: string
+      lastName:
+        example: Doe
+        type: string
+      password:
+        example: securePassword123
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API for user authentication and token management.
+  title: Authentication Service API
+  version: "1.0"
+paths:
+  /getguid:
+    get:
+      description: Returns GUID of authenticated user from access token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/calltypes.JSONResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/calltypes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get current user GUID
+      tags:
+      - Authentication
+  /logout:
+    get:
+      description: Invalidates user's refresh token and clears cookies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/calltypes.JSONResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/calltypes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Logout user
+      tags:
+      - Authentication
+  /provide/{id}:
+    get:
+      description: Generates new access and refresh tokens for user
+      parameters:
+      - description: User GUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/calltypes.JSONResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/calltypes.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/calltypes.ErrorResponse'
+      summary: Get new token pair
+      tags:
+      - Authentication
+  /refresh:
+    get:
+      description: Generates new tokens using valid refresh token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/calltypes.JSONResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/calltypes.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/calltypes.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Refresh token pair
+      tags:
+      - Authentication
+  /registrate:
+    post:
+      consumes:
+      - application/json
+      description: Creates new user account
+      parameters:
+      - description: User registration data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/calltypes.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/calltypes.JSONResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/calltypes.ErrorResponse'
+      summary: Register new user
+      tags:
+      - Authentication
+swagger: "2.0"
